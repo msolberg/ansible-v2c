@@ -2,3 +2,5 @@
 
 tomcat_homes: []
 jboss_homes: []
+# The following directory will hold the tempory files
+work_dir: /tmp/v2c

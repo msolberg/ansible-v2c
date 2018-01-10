@@ -46,3 +46,11 @@
     creates: "/tmp/{{ item | regex_replace('\\/', '-') }}.tgz"
   with_items:
     - "{{ jboss_homes }}"
+
+- name: Fetch Archives
+  fetch:
+    src: "/tmp/{{ item | regex_replace('\\/', '-') }}.tgz"
+    dest: "{{ work_dir }}/archives/"
+  with_items:
+    - "{{ tomcat_homes }}"
+    - "{{ jboss_homes }}"
