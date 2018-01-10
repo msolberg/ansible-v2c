@@ -1,0 +1,48 @@
+---
+- name: Discover Java processes
+  command: pgrep java
+  register: processes
+
+- name: Check Command Lines of Java processes
+  command: cat /proc/{{ item }}/cmdline
+  register: cmdline
+  with_items:
+    - "{{ processes.stdout_lines }}"
+
+- name: Find Tomcats
+  set_fact:
+    tomcat_homes: "{{ tomcat_homes + [ item.stdout | regex_replace('.*catalina.home=([/a-z]+).*', '\\1') ] }}"
+  with_items:
+    - "{{ cmdline.results }}"
+  when: item.stdout | search("org.apache.catalina")
+
+- name: Find Jbosses
+  set_fact:
+    jboss_homes: "{{ jboss_homes + [ item.stdout | regex_replace('.*jboss.server.base.dir=([/a-z\\-]+).*', '\\1') ] }}"
+  with_items:
+    - "{{ cmdline.results }}"
+  when: item.stdout | search("org.jboss.as.standalone")
+
+- name: Report Tomcat Installs
+  debug:
+    var: tomcat_homes
+
+- name: Report Jboss Installs
+  debug:
+    var: jboss_homes
+
+- name: Archive Tomcat Installs
+  command: "tar -chvzf /tmp/{{ item | regex_replace('\\/', '-') }}.tgz conf lib webapps"
+  args:
+    chdir: "{{ item }}"
+    creates: "/tmp/{{ item | regex_replace('\\/', '-') }}.tgz"
+  with_items:
+    - "{{ tomcat_homes }}"
+
+- name: Archive JBoss Installs
+  command: "tar -chvzf /tmp/{{ item | regex_replace('\\/', '-') }}.tgz configuration deployments lib"
+  args:
+    chdir: "{{ item }}"
+    creates: "/tmp/{{ item | regex_replace('\\/', '-') }}.tgz"
+  with_items:
+    - "{{ jboss_homes }}"
