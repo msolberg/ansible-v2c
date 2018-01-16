@@ -20,6 +20,11 @@
   command: "ls {{ work_dir }}/consolidated/"
   register: ls
 
+# Migrate the Deployments
+- include_tasks: migrate_deployment.yml
+  with_items:
+    - "{{ ls.stdout_lines }}"
+
 # Loop through all of the application servers found and build and deploy them.
 - include_tasks: build_deploy.yml
   with_items:

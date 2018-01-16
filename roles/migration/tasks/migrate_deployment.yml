@@ -1,0 +1,38 @@
+---
+- name: Set Deployment Name
+  set_fact:
+    deployment_name: "{{ item }}"
+
+- name: Create the deployments dir
+  file:
+    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/deployments"
+    state: directory
+
+- name: Find all of the war files
+  find:
+    paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
+    patterns: '*.war,*.WAR'
+  register: war_files
+
+- name: Copy the war files to the deployments dir
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ work_dir }}/consolidated/{{ deployment_name }}/deployments/"
+    remote_src: yes
+  with_items:
+    - "{{ war_files.files }}"
+
+- name: Delete left over files in webapps
+  file:
+    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
+    state: absent
+
+- name: Delete left over files in lib
+  file:
+    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/lib"
+    state: absent
+
+- name: Delete left over files in conf
+  file:
+    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/conf"
+    state: absent
