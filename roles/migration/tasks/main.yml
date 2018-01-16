@@ -1,1 +1,27 @@
 ---
+- name: Ensure that work_dir exists
+  file:
+    dest: "{{ work_dir }}/archives"
+    state: directory
+
+# Unpack Configs for each app server
+- include_tasks: unarchive_configs.yml
+  with_items:
+    - "{{ groups['appservers'] }}"
+
+# TODO: We should cycle through the unpacked configurations and do a
+# sanity check
+
+# Set up the project for OpenShift
+- include_tasks: openshift_setup.yml
+
+# Find all of the consolidated apps
+- name: Go find the unpacked configs
+  command: "ls {{ work_dir }}/consolidated/"
+  register: ls
+
+# Loop through all of the application servers found and build and deploy them.
+- include_tasks: build_deploy.yml
+  with_items:
+    - "{{ ls.stdout_lines }}"
+

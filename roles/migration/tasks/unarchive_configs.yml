@@ -1,0 +1,35 @@
+---
+- name: Set Hostname
+  set_fact:
+    appserver_hostname: "{{ item }}"
+
+- name: Make a target directory for the configs
+  file:
+    dest: "{{ work_dir }}/unarchived/{{ appserver_hostname }}/{{ item | basename | regex_replace('\\.tgz$', '') }}"
+    state: directory
+  with_fileglob:
+    - "{{ work_dir }}/archives/{{ appserver_hostname }}/tmp/*"
+
+- name: Unarchive any fetched App Server configs
+  unarchive:
+    copy: no
+    src: "{{ item }}"
+    dest: "{{ work_dir }}/unarchived/{{ appserver_hostname }}/{{ item | basename | regex_replace('\\.tgz$', '') }}"
+  with_fileglob:
+    - "{{ work_dir }}/archives/{{ appserver_hostname }}/tmp/*"
+
+- name: Make a target directory for the consolidated conf
+  file:
+    dest: "{{ work_dir }}/consolidated/{{ item | basename | regex_replace('\\.tgz$', '') }}"
+    state: directory
+  with_fileglob:
+    - "{{ work_dir }}/archives/{{ appserver_hostname }}/tmp/*"
+
+# TODO: This needs to be far more selective as to what we bring over.
+- name: Unarchive the fetched configs into a single consolidated directory
+  unarchive:
+    copy: no
+    src: "{{ item }}"
+    dest: "{{ work_dir }}/consolidated/{{ item | basename | regex_replace('\\.tgz$', '') }}"
+  with_fileglob:
+    - "{{ work_dir }}/archives/{{ appserver_hostname }}/tmp/*"

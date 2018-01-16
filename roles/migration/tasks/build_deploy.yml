@@ -1,0 +1,41 @@
+---
+- name: Set App Name
+  set_fact:
+    app_name: "{{ item }}"
+
+- name: Create Deployment Name
+  set_fact:
+    deployment_name: "v2c-{{ app_name }}"
+
+- name: 'List BuildConfig'
+  command: "oc get bc/{{ deployment_name }}"
+  register: oc_get_bc
+  ignore_errors: true
+
+- name: 'Create BuildConfig'
+  command: "oc new-build --image-stream=openshift/jboss-webserver30-tomcat8-openshift --binary=true --name={{ deployment_name }}"
+  when: oc_get_bc.rc == 1
+
+- name: 'Start Build'
+  command: "oc start-build {{ deployment_name }} --from-dir={{ work_dir }}/consolidated/{{ app_name }}"
+
+- name: 'Wait for First Build to Finish'
+  command: "oc get builds/{{ deployment_name }}-1"
+  register: oc_get_builds
+  until: oc_get_builds.stdout.find('Complete') != -1
+  retries: 10
+  delay: 5
+  ignore_errors: true
+
+- name: 'List Deployment Configurations'
+  command: "oc get dc/{{ deployment_name }}"
+  register: oc_get_dc
+  ignore_errors: true
+
+- name: 'Create Deployment Configuration'
+  command: "oc new-app {{ deployment_name }}"
+  when: oc_get_dc.rc == 1
+
+- name: 'Create Route'
+  command: "oc expose svc {{ deployment_name }}"
+  when: oc_get_dc.rc == 1

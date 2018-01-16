@@ -1,0 +1,7 @@
+---
+# The following directory will hold the tempory files
+work_dir: /tmp/v2c
+app: "{{ work_dir }}/archives/localhost/tmp/-usr-share-tomcat.tgz"
+openshift_host: devs.rhos.rdu.salab.redhat.com
+openshift_token: Kh7uQKYozRGA__rD4rkfaYUZuwGNCHKKPaW7DJ1LIz8
+openshift_namespace: v2c

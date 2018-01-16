@@ -1,0 +1,46 @@
+---
+- name: 'List Projects'
+  command: "oc get projects/{{ openshift_namespace }}"
+  register: oc_get_project
+  ignore_errors: true
+
+- name: 'Create Project'
+  command: oc new-project v2c
+  when: oc_get_project.rc == 1
+
+# TODO: This is probably the right way to do this, but I never could get the
+#       '/' in the ImageStreamTag name to pass through the Jinja/REST filters.
+
+# - name: 'Create Project'
+#   oc:
+#     state: present
+#     name: v2c
+#     kind: ProjectRequest
+#     host: "{{ openshift_host }}"
+#     token: "{{ openshift_token }}"
+#     validate_certs: false
+
+# - name: 'Create Build Config'
+#   oc:
+#     host: "{{ openshift_host }}"
+#     token: "{{ openshift_token }}"
+#     validate_certs: false
+#     state: present
+#     inline:
+#       kind: "BuildConfig"
+#       apiVersion: "v1"
+#       metadata:
+#         name: "ansible-sample"
+#         namespace: "v2c"
+#       spec:
+#         runPolicy: "Serial"
+#         strategy:
+#           sourceStrategy:
+#             from:
+#               kind: "ImageStreamTag"
+#               name: "openshift/jboss-webserver30-tomcat8-openshift:latest"
+#         output:
+#           to:
+#             kind: "ImageStreamTag"
+#             name: "ansible-sample:latest"
+
