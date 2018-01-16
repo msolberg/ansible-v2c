@@ -1,2 +1,5 @@
 [appservers]
 localhost ansible_connection=local become=yes
+
+[buildservers]
+localhost ansible_connection=local become=yes
