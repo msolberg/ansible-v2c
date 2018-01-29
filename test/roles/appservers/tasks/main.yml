@@ -1,0 +1,19 @@
+---
+# This is a set of tasks which will build out some test infrastructure
+
+- name: Install Tomcat
+  package: 
+    name: tomcat
+    state: latest
+
+- name: Fetch the sample WAR file
+  get_url:
+    url: https://tomcat.apache.org/tomcat-9.0-doc/appdev/sample/sample.war
+    dest: /usr/share/tomcat/webapps/sample.war
+
+- name: Start Tomcat Service
+  service: 
+    name: tomcat
+    state: started
+
+
