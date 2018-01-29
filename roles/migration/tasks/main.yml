@@ -4,6 +4,11 @@
     dest: "{{ work_dir }}/archives"
     state: directory
 
+- name: Copy archives to the build server
+  copy:
+    dest: "{{ work_dir }}/archives/"
+    src: "{{ work_dir }}/archives/"
+
 # Unpack Configs for each app server
 - include_tasks: unarchive_configs.yml
   with_items:
