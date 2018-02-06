@@ -11,14 +11,14 @@
 
 - name: Find Tomcats
   set_fact:
-    tomcat_homes: "{{ tomcat_homes + [ item.stdout | regex_replace('.*catalina.home=([/a-z]+).*', '\\1') ] }}"
+    tomcat_homes: "{{ tomcat_homes + [ item.stdout | regex_replace('.*catalina.home=([/\\w\\-\\.]+).*', '\\1') ] }}"
   with_items:
     - "{{ cmdline.results }}"
   when: item.stdout | search("org.apache.catalina")
 
 - name: Find Jbosses
   set_fact:
-    jboss_homes: "{{ jboss_homes + [ item.stdout | regex_replace('.*jboss.server.base.dir=([/a-z\\-]+).*', '\\1') ] }}"
+    jboss_homes: "{{ jboss_homes + [ item.stdout | regex_replace('.*jboss.server.base.dir=([/\\w\\-\\.]+).*', '\\1') ] }}"
   with_items:
     - "{{ cmdline.results }}"
   when: item.stdout | search("org.jboss.as.standalone")
