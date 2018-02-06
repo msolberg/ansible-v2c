@@ -8,6 +8,21 @@
     path: "{{ work_dir }}/consolidated/{{ deployment_name }}/deployments"
     state: directory
 
+- name: Find any deployed applications
+  find:
+    paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
+    file_type: 'directory'
+    recurse: no
+  register: deployed_apps
+
+- name: WAR up any deployed applications
+  command: jar -cvf ../{{ item.path | basename }}.war .
+  args:
+    chdir: "{{ item.path }}"
+    creates: "{{ item.path | basename }}.war"
+  with_items:
+    - "{{ deployed_apps.files }}"
+
 - name: Find all of the war files
   find:
     paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
