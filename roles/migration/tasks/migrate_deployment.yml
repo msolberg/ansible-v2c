@@ -19,7 +19,7 @@
   command: jar -cvf ../{{ item.path | basename }}.war .
   args:
     chdir: "{{ item.path }}"
-    creates: "{{ item.path | basename }}.war"
+    creates: "../{{ item.path | basename }}.war"
   with_items:
     - "{{ deployed_apps.files }}"
 
