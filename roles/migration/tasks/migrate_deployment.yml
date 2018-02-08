@@ -37,6 +37,25 @@
   with_items:
     - "{{ war_files.files }}"
 
+- name: Create the configuration dir
+  file:
+    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/configuration"
+    state: directory
+
+- name: Find all of the configuration files
+  find:
+    paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/conf"
+    patterns: '*.xml,*.XML'
+  register: config_files
+
+- name: Copy the config files to the configuration dir
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ work_dir }}/consolidated/{{ deployment_name }}/configuration/"
+    remote_src: yes
+  with_items:
+    - "{{ config_files.files }}"
+
 - name: Delete left over files in webapps
   file:
     path: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
