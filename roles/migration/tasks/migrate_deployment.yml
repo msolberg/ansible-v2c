@@ -61,10 +61,18 @@
     path: "{{ work_dir }}/consolidated/{{ deployment_name }}/webapps"
     state: absent
 
-- name: Delete left over files in lib
+- name: Find blacklisted files in lib
+  find:
+    paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/lib"
+    patterns: 'annotations-api.jar,catalina*.jar,ecj*.jar,el-api.jar,jaspic-api.jar,jasper*.jar,jsp-api.jar,servlet-api.jar,tomcat*.jar,websocket-api.jar'
+  register: blacklisted_jars
+
+- name: Delete blacklisted files in lib
   file:
-    path: "{{ work_dir }}/consolidated/{{ deployment_name }}/lib"
+    path: "{{ item.path }}"
     state: absent
+  with_items:
+    - "{{ blacklisted_jars.files }}"
 
 - name: Delete left over files in conf
   file:
