@@ -2,3 +2,4 @@
 # The following directory will hold the tempory files
 work_dir: /tmp/v2c
 openshift_namespace: v2c
+tomcat_builder_image: openshift/jboss-webserver31-tomcat8-openshift:1.1
