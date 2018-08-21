@@ -1,0 +1,20 @@
+---
+- name: Set Deployment Name
+  set_fact:
+    deployment_name: "{{ item }}"
+
+- name: Find all of the configuration files
+  find:
+    paths: "{{ work_dir }}/consolidated/{{ deployment_name }}/conf"
+    patterns: '*.xml,*.XML'
+  register: config_files
+
+# This will fail if there is a difference between any of these files
+- name: Diff configuration files against each of the application servers
+  command: diff -rup "{{ item[0].path }}" "{{ work_dir }}/unarchived/{{ item[1] }}/{{ deployment_name}}/conf/{{ item[0].path | basename }}"
+  with_nested:
+    - "{{ config_files.files }}"
+    - "{{ groups['appservers'] }}"
+
+# TODO: This output is almost impossible for a human to read.
+# Catch the exception and then bubble it up.
