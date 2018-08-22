@@ -25,6 +25,11 @@
   command: "ls {{ work_dir }}/consolidated/"
   register: ls
 
+# Sanity check the Deployments
+- include_tasks: sanity_check.yml
+  with_items:
+    - "{{ ls.stdout_lines }}"
+
 # Migrate the Deployments
 - include_tasks: migrate_deployment.yml
   with_items:
